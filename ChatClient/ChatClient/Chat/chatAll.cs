@@ -8,9 +8,8 @@ namespace ChatClient
 {
     public partial class chatAll : Form
     {
-        /// <summary>
-        /// The .net wrapper around WinSock sockets.
-        /// </summary>
+
+        // The .net wrapper around WinSock sockets.
         TcpClient _client;
 
         /// <summary>
@@ -95,6 +94,14 @@ namespace ChatClient
         private void Form1_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            menu chatAll = new menu();
+            chatAll.ShowDialog();
+            this.Close();
         }
     }
 }

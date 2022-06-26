@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ChatClient.Menu;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +16,14 @@ namespace ChatClient.Chat
         public groupChat()
         {
             InitializeComponent();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            menu chatAll = new menu();
+            chatAll.ShowDialog();
+            this.Close();
         }
     }
 }
