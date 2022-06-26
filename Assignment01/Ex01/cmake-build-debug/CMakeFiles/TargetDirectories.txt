@@ -1,3 +1,0 @@
-D:/[DDesktop]/[HUST]/NP.20212.Gr12/Assignment 1/Ex01/cmake-build-debug/CMakeFiles/Ex01.dir
-D:/[DDesktop]/[HUST]/NP.20212.Gr12/Assignment 1/Ex01/cmake-build-debug/CMakeFiles/edit_cache.dir
-D:/[DDesktop]/[HUST]/NP.20212.Gr12/Assignment 1/Ex01/cmake-build-debug/CMakeFiles/rebuild_cache.dir
