@@ -1,3 +1,0 @@
-/usr/src/cppweb/crow_demo_01/build/CMakeFiles/rebuild_cache.dir
-/usr/src/cppweb/crow_demo_01/build/CMakeFiles/crow_demo_01.dir
-/usr/src/cppweb/crow_demo_01/build/CMakeFiles/edit_cache.dir
