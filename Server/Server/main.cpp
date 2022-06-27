@@ -213,7 +213,7 @@ int main()
 							countMember[countGroup]++;
 							countGroup++;
 
-							string strOut = "GC_ADD_USER|User"+ to_string(sock)+" has joined this group chat.";
+							string strOut = "GC_ADD_USER|User"+ to_string(sock)+" has joined group chat " + "\"" + grName + "\"";
 							send(sock, strOut.c_str(), strOut.size() + 1, 0);
 
 							ostringstream ss;
@@ -239,7 +239,7 @@ int main()
 
 								for (int j = 0; j < countMember[index]; j++)
 								{
-									string strOut = "GC_ADD_USER|User" + to_string(sock) + " has joined this group chat.";
+									string strOut = "GC_ADD_USER|User" + to_string(sock) + " has joined group chat " + "\"" + grName + "\"";
 									send(stoi(memberOfGroup[index][j]), strOut.c_str(), strOut.size() + 1, 0);
 									
 										
