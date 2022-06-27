@@ -51,6 +51,16 @@ int main()
 	// this will be changed by the \quit command (see below, bonus not in video!)
 	bool running = true;
 
+	int countGroup = 0;
+	string groupName[20];
+	int countMember[20];
+	string memberOfGroup[20][20];
+	
+	for (size_t i = 0; i < 20; i++)
+	{
+		countMember[i] = 0;
+	}
+
 	while (running)
 	{
 		// Make a copy of the master file descriptor set, this is SUPER important because
@@ -111,9 +121,9 @@ int main()
 					if (flag == "CHAT_ALL")
 					{
 						// Send message to other clients, and definiately NOT the listening socket
-						for (u_int i = 0; i < master.fd_count; i++)
+						for (u_int j = 0; j < master.fd_count; j++)
 						{
-							SOCKET outSock = master.fd_array[i];
+							SOCKET outSock = master.fd_array[j];
 							if (outSock == listening)
 							{
 								continue;
@@ -140,9 +150,9 @@ int main()
 						string ct = content.substr(content.find("|NULL|") + 6);
 
 						bool exist = false;
-						for (u_int i = 0; i < master.fd_count; i++)
+						for (u_int j = 0; j < master.fd_count; j++)
 						{
-							SOCKET outSock = master.fd_array[i];
+							SOCKET outSock = master.fd_array[j];
 							if (receiver == to_string(outSock))
 							{
 								exist = true;
@@ -155,33 +165,113 @@ int main()
 							send(sock, strOut.c_str(), strOut.size() + 1, 0);
 						}
 						else {
-							for (u_int i = 0; i < master.fd_count; i++)
+							for (u_int j = 0; j < master.fd_count; j++)
 							{
-								SOCKET outSock = master.fd_array[i];
+								SOCKET outSock = master.fd_array[j];
 								if (outSock == sock || receiver == to_string(outSock))
 								{
-									
 									if (outSock == listening)
 									{
 										continue;
 									}
-
 									ostringstream ss;
-
 									if (receiver == to_string(outSock))
 									{
-										ss << "$[User" << sock << "]: " << ct << "\r\n";
+										ss << "Private - $[User" << sock << "]: " << ct << "\r\n";
 									}
-
 									if (outSock == sock)
 									{
-										ss << "[You]: " << ct << "\r\n";
+										ss << "Private - [You]: " << ct << "\r\n";
 									}
-
 									string strOut = ss.str();
 									send(outSock, strOut.c_str(), strOut.size() + 1, 0);
 								}
 								
+							}
+						}
+					}
+					else if (flag == "GROUP_CHAT") {
+						string grName = content.substr(0, content.find("|NULL|"));
+						string ct = content.substr(content.find("|NULL|") + 6);
+
+						bool checkGroupExist = false;
+						int index;
+						for (int j = 0; j < countGroup; j++)
+						{
+							if (groupName[j] == grName)
+							{
+								checkGroupExist = true;
+								index = j;
+								break;
+							}
+						}
+
+						if (!checkGroupExist)
+						{
+							groupName[countGroup] = grName;
+							memberOfGroup[countGroup][countMember[countGroup]] = to_string(sock);
+							countMember[countGroup]++;
+							countGroup++;
+
+							string strOut = "GC_ADD_USER|User"+ to_string(sock)+" has joined this group chat.";
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
+
+							ostringstream ss;
+							ss << "Group - [You]: " << ct << "\r\n";
+							
+							strOut = ss.str();
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
+						}
+						else {
+							bool joined = false;
+							for (int j = 0; j < countMember[index]; j++)
+							{
+								if (memberOfGroup[index][j] == to_string(sock)) {
+									joined = true;
+									break;
+								}
+							}
+
+							if (!joined)
+							{
+								memberOfGroup[index][countMember[index]] = to_string(sock);
+								countMember[index]++;
+
+								for (int j = 0; j < countMember[index]; j++)
+								{
+									string strOut = "GC_ADD_USER|User" + to_string(sock) + " has joined this group chat.";
+									send(stoi(memberOfGroup[index][j]), strOut.c_str(), strOut.size() + 1, 0);
+									
+										
+									ostringstream ss;
+									if (memberOfGroup[index][j] != to_string(sock))
+									{
+										ss << "Group - $[User" << sock << "]: " << ct << "\r\n";
+									}else 
+									{
+										ss << "Group - [You]: " << ct << "\r\n";
+									}
+									strOut = ss.str();
+									send(stoi(memberOfGroup[index][j]), strOut.c_str(), strOut.size() + 1, 0);
+									
+								}
+							}
+							else {
+								for (int j = 0; j < countMember[index]; j++)
+								{
+									ostringstream ss;
+									if (memberOfGroup[index][j] != to_string(sock))
+									{
+										ss << "Group - $[User" << sock << "]: " << ct << "\r\n";
+									}
+									else
+									{
+										ss << "Group - [You]: " << ct << "\r\n";
+									}
+									string strOut = ss.str();
+									send(stoi(memberOfGroup[index][j]), strOut.c_str(), strOut.size() + 1, 0);
+
+								}
 							}
 						}
 					}

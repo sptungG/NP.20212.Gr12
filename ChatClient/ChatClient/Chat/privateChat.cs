@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Sockets;
+using ChatClient.Menu;
 
 namespace ChatClient.Chat
 {
@@ -106,6 +107,14 @@ namespace ChatClient.Chat
             // Clear the text box and set it's focus
             textBox1.Text = "";
             textBox1.Focus();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            menu chatAll = new menu();
+            chatAll.ShowDialog();
+            this.Close();
         }
     }
 }

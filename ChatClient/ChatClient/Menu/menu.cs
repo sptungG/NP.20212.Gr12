@@ -1,4 +1,5 @@
 ﻿using ChatClient.Chat;
+using ChatClient.Login;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,8 +35,24 @@ namespace ChatClient.Menu
         private void button2_Click(object sender, EventArgs e)
         {
             this.Hide();
-            privateChat chatAll = new privateChat();
-            chatAll.ShowDialog();
+            privateChat c = new privateChat();
+            c.ShowDialog();
+            this.Close();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            groupChat c = new groupChat();
+            c.ShowDialog();
+            this.Close();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+            login c = new login();
+            c.ShowDialog();
             this.Close();
         }
     }
