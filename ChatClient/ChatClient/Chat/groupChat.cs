@@ -17,6 +17,9 @@ namespace ChatClient.Chat
         TcpClient _client;
 
         byte[] _buffer = new byte[4096];
+
+        string preveousGroupName;
+        string welcomeStr="";
         public groupChat()
         {
             InitializeComponent();
@@ -53,7 +56,11 @@ namespace ChatClient.Chat
                     var tmp = new byte[bytesIn];
                     Array.Copy(_buffer, 0, tmp, 0, bytesIn);
                     var str = Encoding.ASCII.GetString(tmp);
-
+                    if (welcomeStr == "")
+                    {
+                        welcomeStr = str;
+                    }
+                    
                     // Any actions that involve interacting with the UI must be done
                     // on the main thread. This method is being called on a worker
                     // thread so using the form's BeginInvoke() method is vital to
@@ -108,6 +115,15 @@ namespace ChatClient.Chat
             label2.Hide();
             if (textBox1.Text == "") return;
             // Encode the message and send it out to the server.
+
+            if(textBox2.Text != preveousGroupName)
+            {
+                preveousGroupName = textBox2.Text;
+                listBox1.Items.Clear();
+                listBox1.Items.Add(welcomeStr);
+            }
+
+            preveousGroupName = textBox2.Text;
 
             var content = "GROUP_CHAT|NULL|" + textBox2.Text + "|NULL|" + textBox1.Text;
 
