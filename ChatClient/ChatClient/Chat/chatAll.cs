@@ -11,16 +11,19 @@ namespace ChatClient
 
         // The .net wrapper around WinSock sockets.
         TcpClient _client;
-
+        string user;
         /// <summary>
         /// Buffer to store incoming messages from the server.
         /// </summary>
         byte[] _buffer = new byte[4096];
 
-        public chatAll()
+        public chatAll(string user)
         {
             InitializeComponent();
+            this.user = user.Trim();
             _client = new TcpClient();
+
+            
         }
 
         protected override void OnShown(EventArgs e)
@@ -37,6 +40,9 @@ namespace ChatClient
                                             _buffer.Length,
                                             Server_MessageReceived,
                                             null);
+
+            var msg = Encoding.ASCII.GetBytes("INIT|NULL|" + user);
+            _client.GetStream().Write(msg, 0, msg.Length);
         }
 
         private void Server_MessageReceived(IAsyncResult ar)
@@ -99,7 +105,7 @@ namespace ChatClient
         private void button2_Click(object sender, EventArgs e)
         {
             this.Hide();
-            menu chatAll = new menu();
+            menu chatAll = new menu(user);
             chatAll.ShowDialog();
             this.Close();
         }

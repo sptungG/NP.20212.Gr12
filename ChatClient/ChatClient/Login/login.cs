@@ -63,7 +63,7 @@ namespace ChatClient.Login
                         if (str == "LI_SUCCESS\0")
                         {
                             this.Hide();
-                            menu chatAll = new menu();
+                            menu chatAll = new menu(textBox1.Text);
                             chatAll.ShowDialog();
                             this.Close();
                         } 

@@ -14,15 +14,17 @@ namespace ChatClient.Menu
 {
     public partial class menu : Form
     {
-        public menu()
+        string user;
+        public menu(string user)
         {
             InitializeComponent();
+            this.user = user.Trim();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             this.Hide();
-            chatAll chatAll = new chatAll();
+            chatAll chatAll = new chatAll(user);
             chatAll.ShowDialog();
             this.Close();
         }
@@ -35,7 +37,7 @@ namespace ChatClient.Menu
         private void button2_Click(object sender, EventArgs e)
         {
             this.Hide();
-            privateChat c = new privateChat();
+            privateChat c = new privateChat(user);
             c.ShowDialog();
             this.Close();
         }
@@ -43,7 +45,7 @@ namespace ChatClient.Menu
         private void button3_Click(object sender, EventArgs e)
         {
             this.Hide();
-            groupChat c = new groupChat();
+            groupChat c = new groupChat(user);
             c.ShowDialog();
             this.Close();
         }

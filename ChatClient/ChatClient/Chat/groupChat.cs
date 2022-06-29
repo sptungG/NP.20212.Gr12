@@ -8,15 +8,17 @@ namespace ChatClient.Chat
 {
     public partial class groupChat : Form
     {
+        string user;
         TcpClient _client;
 
         byte[] _buffer = new byte[4096];
 
         string preveousGroupName;
         string welcomeStr="";
-        public groupChat()
+        public groupChat(string user)
         {
             InitializeComponent();
+            this.user = user.Trim();
             _client = new TcpClient();
             label2.Hide();
         }
@@ -34,6 +36,9 @@ namespace ChatClient.Chat
                                             _buffer.Length,
                                             Server_MessageReceived,
                                             null);
+
+            var msg = Encoding.ASCII.GetBytes("INIT|NULL|" + user);
+            _client.GetStream().Write(msg, 0, msg.Length);
         }
 
         private void Server_MessageReceived(IAsyncResult ar)
@@ -93,7 +98,7 @@ namespace ChatClient.Chat
         private void button2_Click(object sender, EventArgs e)
         {
             this.Hide();
-            menu chatAll = new menu();
+            menu chatAll = new menu(user);
             chatAll.ShowDialog();
             this.Close();
         }
