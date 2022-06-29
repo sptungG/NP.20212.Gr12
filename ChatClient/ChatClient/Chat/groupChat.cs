@@ -1,12 +1,6 @@
 ﻿using ChatClient.Menu;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Sockets;
 
@@ -69,7 +63,7 @@ namespace ChatClient.Chat
                     {
                         if (str.IndexOf("|") != -1)
                         {
-                            if (str.Substring(0, str.IndexOf("|")) == "GC_ADD_USER")
+                            if (str.Substring(0, str.IndexOf("|")) == "GC_ADD_USER" || str.Substring(0, str.IndexOf("|")) == "GC_LEFT_USER")
                             {
                                 listBox1.Items.Add("\t\t\t\t\t\t"+str.Substring(str.IndexOf("|")+1));
                                 listBox1.Items.Add("");
@@ -116,8 +110,9 @@ namespace ChatClient.Chat
             if (textBox1.Text == "") return;
             // Encode the message and send it out to the server.
 
-            if(textBox2.Text != preveousGroupName)
+            if (textBox2.Text != preveousGroupName && preveousGroupName != null)
             {
+                _client.GetStream().Write(Encoding.ASCII.GetBytes("LEFT_GROUP_CHAT|NULL|" + preveousGroupName), 0, Encoding.ASCII.GetBytes("LEFT_GROUP_CHAT|NULL|" + preveousGroupName).Length);
                 preveousGroupName = textBox2.Text;
                 listBox1.Items.Clear();
                 listBox1.Items.Add(welcomeStr);

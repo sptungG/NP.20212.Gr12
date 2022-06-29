@@ -7,6 +7,14 @@
 
 using namespace std;
 
+bool login(string user, string pass) {
+	return false;
+}
+
+bool signUp(string user, string pass) {
+	return false;
+}
+
 int main()
 {
 	// Initialze winsock
@@ -116,7 +124,6 @@ int main()
 					string str = string(buf);
 					string flag = str.substr(0, str.find("|NULL|"));
 					string content = str.substr(str.find("|NULL|") + 6);
-
 
 					if (flag == "CHAT_ALL")
 					{
@@ -273,6 +280,67 @@ int main()
 
 								}
 							}
+						}
+					}
+					else if (flag == "LEFT_GROUP_CHAT") {
+						string grName = content;
+
+						int index;
+						for (int j = 0; j < countGroup; j++)
+						{
+							if (groupName[j] == grName)
+							{
+								index = j;
+								break;
+							}
+						}
+
+						for (int j = 0; j < countMember[index]; j++)
+						{
+							if (memberOfGroup[index][j] == to_string(sock)) {
+								for (int k = j; k < countMember[index]-1; k++)
+								{
+									memberOfGroup[index][k] = memberOfGroup[index][k + 1];
+								}
+								countMember[index]--;
+								break;
+							}
+						}
+
+						for (int j = 0; j < countMember[index]; j++)
+						{
+							string strOut = "GC_LEFT_USER|User" + to_string(sock) + " has left group chat " + "\"" + grName + "\"";
+							send(stoi(memberOfGroup[index][j]), strOut.c_str(), strOut.size() + 1, 0);
+						}
+					}
+					else if (flag == "LOGIN") {
+						string user = content.substr(0, content.find("|NULL|"));
+						string pass = content.substr(content.find("|NULL|") + 6);
+
+						bool ok = login(user, pass);
+						if (ok)
+						{
+							string strOut = "LI_SUCCESS";
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
+						}
+						else {
+							string strOut = "LI_FAILURE";
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
+						}
+					}
+					else if (flag == "SIGNUP") {
+						string user = content.substr(0, content.find("|NULL|"));
+						string pass = content.substr(content.find("|NULL|") + 6);
+
+						bool ok = signUp(user, pass);
+						if (ok)
+						{
+							string strOut = "SU_SUCCESS";
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
+						}
+						else {
+							string strOut = "SU_FAILURE";
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
 						}
 					}
 				}
