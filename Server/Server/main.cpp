@@ -2,17 +2,61 @@
 #include <WS2tcpip.h>
 #include <string>
 #include <sstream>
+#include <fstream>
 
 #pragma comment (lib, "ws2_32.lib")
 
 using namespace std;
 
 bool login(string user, string pass) {
+	fstream f;
+	f.open("account.txt", ios::in);
+	string line;
+	while (!f.eof())
+	{
+		getline(f, line);
+		if (line.find("\t") != string::npos){
+			string u = line.substr(0, line.find("\t"));
+			string p = line.substr(line.find("\t") + 1);
+
+			if (u._Equal(user) && p._Equal(pass))
+			{
+				f.close();
+				return true;
+			}
+		}
+	}
+
+	f.close();
 	return false;
 }
 
 bool signUp(string user, string pass) {
-	return false;
+	fstream f;
+	f.open("account.txt", ios::in);
+	string line;
+	while (!f.eof())
+	{
+		getline(f, line);
+		if (line.find("\t") != string::npos) {
+			string u = line.substr(0, line.find("\t"));
+
+			if (u._Equal(user))
+			{
+				f.close();
+				return false;
+			}
+		}
+	}
+	f.close();
+                     
+	f.open("account.txt", ios::app); 
+
+	string data = user + "\t" + pass + "\n";
+	f << data;                            
+
+	f.close(); 
+	return true;
 }
 
 int main()

@@ -1,0 +1,4 @@
+truong	truong
+hoang	a
+hoanga	a
+hoangaa	q
