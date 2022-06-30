@@ -2,10 +2,63 @@
 #include <WS2tcpip.h>
 #include <string>
 #include <sstream>
+#include <fstream>
+#include <map>
 
 #pragma comment (lib, "ws2_32.lib")
 
 using namespace std;
+
+bool login(string user, string pass) {
+	fstream f;
+	f.open("account.txt", ios::in);
+	string line;
+	while (!f.eof())
+	{
+		getline(f, line);
+		if (line.find("\t") != string::npos){
+			string u = line.substr(0, line.find("\t"));
+			string p = line.substr(line.find("\t") + 1);
+
+			if (u._Equal(user) && p._Equal(pass))
+			{
+				f.close();
+				return true;
+			}
+		}
+	}
+
+	f.close();
+	return false;
+}
+
+bool signUp(string user, string pass) {
+	fstream f;
+	f.open("account.txt", ios::in);
+	string line;
+	while (!f.eof())
+	{
+		getline(f, line);
+		if (line.find("\t") != string::npos) {
+			string u = line.substr(0, line.find("\t"));
+
+			if (u._Equal(user))
+			{
+				f.close();
+				return false;
+			}
+		}
+	}
+	f.close();
+                     
+	f.open("account.txt", ios::app); 
+
+	string data = user + "\t" + pass + "\n";
+	f << data;                            
+
+	f.close(); 
+	return true;
+}
 
 int main()
 {
@@ -56,6 +109,9 @@ int main()
 	int countMember[20];
 	string memberOfGroup[20][20];
 	
+	map <int, string> sockToUser;
+	map <string, int> userToSock;
+
 	for (size_t i = 0; i < 20; i++)
 	{
 		countMember[i] = 0;
@@ -96,7 +152,8 @@ int main()
 				FD_SET(client, &master);
 
 				// Send a welcome message to the connected client
-				string welcomeMsg = "SERVER: Welcome User" + to_string(client) + "  to the Chat Server!";
+				
+				string welcomeMsg = "SERVER: Welcome to the Chat Server!";
 				send(client, welcomeMsg.c_str(), welcomeMsg.size() + 1, 0);
 			}
 			else // It's an inbound message
@@ -117,10 +174,13 @@ int main()
 					string flag = str.substr(0, str.find("|NULL|"));
 					string content = str.substr(str.find("|NULL|") + 6);
 
-
-					if (flag == "CHAT_ALL")
+					if (flag == "INIT") {
+						sockToUser[sock] = content;
+						userToSock[content] = sock;
+					}
+					else if (flag == "CHAT_ALL")
 					{
-						// Send message to other clients, and definiately NOT the listening socket
+						
 						for (u_int j = 0; j < master.fd_count; j++)
 						{
 							SOCKET outSock = master.fd_array[j];
@@ -133,7 +193,7 @@ int main()
 
 							if (outSock != sock)
 							{
-								ss << "$[User" << sock << "]: " << content << "\r\n";
+								ss << "$[" << sockToUser[sock] << "]: " << content << "\r\n";
 							}
 							else
 							{
@@ -153,7 +213,7 @@ int main()
 						for (u_int j = 0; j < master.fd_count; j++)
 						{
 							SOCKET outSock = master.fd_array[j];
-							if (receiver == to_string(outSock))
+							if (userToSock[receiver] == outSock)
 							{
 								exist = true;
 								break;
@@ -168,16 +228,16 @@ int main()
 							for (u_int j = 0; j < master.fd_count; j++)
 							{
 								SOCKET outSock = master.fd_array[j];
-								if (outSock == sock || receiver == to_string(outSock))
+								if (outSock == sock || userToSock[receiver] == outSock)
 								{
 									if (outSock == listening)
 									{
 										continue;
 									}
 									ostringstream ss;
-									if (receiver == to_string(outSock))
+									if (userToSock[receiver] == outSock)
 									{
-										ss << "Private - $[User" << sock << "]: " << ct << "\r\n";
+										ss << "Private - $[" << sockToUser[sock] << "]: " << ct << "\r\n";
 									}
 									if (outSock == sock)
 									{
@@ -213,7 +273,7 @@ int main()
 							countMember[countGroup]++;
 							countGroup++;
 
-							string strOut = "GC_ADD_USER|User"+ to_string(sock)+" has joined group chat " + "\"" + grName + "\"";
+							string strOut = "GC_ADD_USER|"+ sockToUser[sock] +" has joined group chat " + "\"" + grName + "\"";
 							send(sock, strOut.c_str(), strOut.size() + 1, 0);
 
 							ostringstream ss;
@@ -239,14 +299,14 @@ int main()
 
 								for (int j = 0; j < countMember[index]; j++)
 								{
-									string strOut = "GC_ADD_USER|User" + to_string(sock) + " has joined group chat " + "\"" + grName + "\"";
+									string strOut = "GC_ADD_USER|" + sockToUser[sock] + " has joined group chat " + "\"" + grName + "\"";
 									send(stoi(memberOfGroup[index][j]), strOut.c_str(), strOut.size() + 1, 0);
 									
 										
 									ostringstream ss;
 									if (memberOfGroup[index][j] != to_string(sock))
 									{
-										ss << "Group - $[User" << sock << "]: " << ct << "\r\n";
+										ss << "Group - $[" << sockToUser[sock] << "]: " << ct << "\r\n";
 									}else 
 									{
 										ss << "Group - [You]: " << ct << "\r\n";
@@ -262,7 +322,7 @@ int main()
 									ostringstream ss;
 									if (memberOfGroup[index][j] != to_string(sock))
 									{
-										ss << "Group - $[User" << sock << "]: " << ct << "\r\n";
+										ss << "Group - $[" << sockToUser[sock] << "]: " << ct << "\r\n";
 									}
 									else
 									{
@@ -273,6 +333,67 @@ int main()
 
 								}
 							}
+						}
+					}
+					else if (flag == "LEFT_GROUP_CHAT") {
+						string grName = content;
+
+						int index;
+						for (int j = 0; j < countGroup; j++)
+						{
+							if (groupName[j] == grName)
+							{
+								index = j;
+								break;
+							}
+						}
+
+						for (int j = 0; j < countMember[index]; j++)
+						{
+							if (memberOfGroup[index][j] == to_string(sock)) {
+								for (int k = j; k < countMember[index]-1; k++)
+								{
+									memberOfGroup[index][k] = memberOfGroup[index][k + 1];
+								}
+								countMember[index]--;
+								break;
+							}
+						}
+
+						for (int j = 0; j < countMember[index]; j++)
+						{
+							string strOut = "GC_LEFT_USER|" + sockToUser[sock] + " has left group chat " + "\"" + grName + "\"";
+							send(stoi(memberOfGroup[index][j]), strOut.c_str(), strOut.size() + 1, 0);
+						}
+					}
+					else if (flag == "LOGIN") {
+						string user = content.substr(0, content.find("|NULL|"));
+						string pass = content.substr(content.find("|NULL|") + 6);
+
+						bool ok = login(user, pass);
+						if (ok)
+						{
+							string strOut = "LI_SUCCESS";
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
+						}
+						else {
+							string strOut = "LI_FAILURE";
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
+						}
+					}
+					else if (flag == "SIGNUP") {
+						string user = content.substr(0, content.find("|NULL|"));
+						string pass = content.substr(content.find("|NULL|") + 6);
+
+						bool ok = signUp(user, pass);
+						if (ok)
+						{
+							string strOut = "SU_SUCCESS";
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
+						}
+						else {
+							string strOut = "SU_FAILURE";
+							send(sock, strOut.c_str(), strOut.size() + 1, 0);
 						}
 					}
 				}
@@ -304,6 +425,6 @@ int main()
 	// Cleanup winsock
 	WSACleanup();
 
-	system("pause");
+	//system("pause");
 	return 0;
 }
