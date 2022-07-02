@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using ChatClient.Menu;
+using System.IO;
 
 namespace ChatClient.Chat
 {
@@ -16,6 +17,7 @@ namespace ChatClient.Chat
     public partial class privateChat : Form
     {
         TcpClient _client;
+        bool sendFile;
         string user;
         byte[] _buffer = new byte[4096];
         public privateChat(string user)
@@ -23,6 +25,7 @@ namespace ChatClient.Chat
             InitializeComponent();
             this.user = user.Trim();
             _client = new TcpClient();
+            sendFile = false;
             label2.Hide();
             label3.Hide();
         }
@@ -67,14 +70,40 @@ namespace ChatClient.Chat
                     // ensure that the action is performed on the main thread.
                     BeginInvoke((Action)(() =>
                     {
-                        if (str == "C_PC_FAILURE\0")
+                        if (str.IndexOf("|") != -1)
                         {
-                            label3.Show();
-                        } else
-                        {
-                            listBox1.Items.Add(str);
-                            listBox1.Items.Add("");
+                            string[] words = str.Split('|');
+                            string fileName = words[1];
+
+                            DialogResult res = MessageBox.Show("Do you want to receive " + fileName + "?", "Confirmation", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                            if (res == DialogResult.OK)
+                            {
+                                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+                                saveFileDialog1.DefaultExt = "txt";
+                                saveFileDialog1.Filter = "RichTextFile |*.rtf|Text file (*.txt)|*.txt|XML file (*.xml)|*.xml|All files (*.*)|*.*";
+                                saveFileDialog1.AddExtension = true;
+                                saveFileDialog1.RestoreDirectory = true;
+                                saveFileDialog1.Title = "Where do you want to save the file?";
+                                saveFileDialog1.InitialDirectory = @"C:/";
+                                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                                {
+                                    File.WriteAllText(saveFileDialog1.FileName, words[2]);
+                                }
+                            }
                         }
+                        else
+                        {
+                            if (str == "C_PC_FAILURE\0")
+                            {
+                                label3.Show();
+                            }
+                            else
+                            {
+                                listBox1.Items.Add(str);
+                                listBox1.Items.Add("");
+                            }
+                        }
+                        
                         
                         //listBox1.SelectedIndex = listBox1.Items.Count - 1;
                     }));
@@ -90,6 +119,18 @@ namespace ChatClient.Chat
             }
         }
 
+        private string toNameOfFile(string name)
+        {
+            string[] words = name.Split('\\');
+            return words[words.Length-1];
+        }
+
+        private void handleSendFile()
+        {
+            byte[] a = File.ReadAllBytes(textBox1.Text);
+            _client.GetStream().Write(a, 0, a.Length);
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             if (textBox2.Text == "")
@@ -102,23 +143,45 @@ namespace ChatClient.Chat
             label3.Hide();
             if (textBox1.Text == "") return;
             // Encode the message and send it out to the server.
+            if (!sendFile)
+            {
+                var content = "PRIVATE_CHAT|NULL|" + textBox2.Text + "|NULL|" + textBox1.Text;
+                var msg = Encoding.ASCII.GetBytes(content);
+                _client.GetStream().Write(msg, 0, msg.Length);
+            } else
+            {
+                var content = "PRIVATE_CHAT|NULL|" + textBox2.Text + "|NULL|SEND_FILE|NULL|" + toNameOfFile(textBox1.Text);
+                var msg = Encoding.ASCII.GetBytes(content);
+                _client.GetStream().Write(msg, 0, msg.Length);
+                handleSendFile();
+            }
 
-            var content = "PRIVATE_CHAT|NULL|" + textBox2.Text + "|NULL|"+ textBox1.Text;
-
-            var msg = Encoding.ASCII.GetBytes(content);
-            _client.GetStream().Write(msg, 0, msg.Length);
 
             // Clear the text box and set it's focus
             textBox1.Text = "";
             textBox1.Focus();
+            sendFile = false;
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");
+            _client.GetStream().Write(msg, 0, msg.Length);
+
             this.Hide();
             menu chatAll = new menu(user);
             chatAll.ShowDialog();
             this.Close();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                sendFile = true;
+                textBox1.Text = dlg.FileName;
+            }
         }
     }
 }
