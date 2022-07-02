@@ -4,6 +4,10 @@
 #include <sstream>
 #include <fstream>
 #include <map>
+#include <direct.h>
+
+#define BUFF_SIZE 1024
+#define BUFF_SEND 1024
 
 #pragma comment (lib, "ws2_32.lib")
 
@@ -213,7 +217,7 @@ int main()
 						for (u_int j = 0; j < master.fd_count; j++)
 						{
 							SOCKET outSock = master.fd_array[j];
-							if (userToSock[receiver] == outSock)
+							if (userToSock[receiver] == outSock && userToSock[receiver] != sock)
 							{
 								exist = true;
 								break;
@@ -225,28 +229,74 @@ int main()
 							send(sock, strOut.c_str(), strOut.size() + 1, 0);
 						}
 						else {
-							for (u_int j = 0; j < master.fd_count; j++)
-							{
-								SOCKET outSock = master.fd_array[j];
-								if (outSock == sock || userToSock[receiver] == outSock)
+							if (ct.find("|NULL|") != -1) {//send file
+								string fileName = ct.substr(ct.find("|NULL|") + 6);
+								char dt[4096];
+								recv(sock, dt, BUFF_SEND, 0);
+								for (int j = 0; j < 4096-1; j++)
 								{
-									if (outSock == listening)
+									if (dt[j] == 'Ì')
 									{
-										continue;
+										dt[j] = '\0';
+										break;
 									}
-									ostringstream ss;
-									if (userToSock[receiver] == outSock)
-									{
-										ss << "Private - $[" << sockToUser[sock] << "]: " << ct << "\r\n";
-									}
-									if (outSock == sock)
-									{
-										ss << "Private - [You]: " << ct << "\r\n";
-									}
-									string strOut = ss.str();
-									send(outSock, strOut.c_str(), strOut.size() + 1, 0);
 								}
-								
+
+								for (u_int j = 0; j < master.fd_count; j++)
+								{
+									SOCKET outSock = master.fd_array[j];
+									if (outSock == sock || userToSock[receiver] == outSock)
+									{
+										if (outSock == listening)
+										{
+											continue;
+										}
+										ostringstream ss;
+										if (userToSock[receiver] == outSock)
+										{
+											ss << "Private - $[" << sockToUser[sock] << "]: " << fileName << "\r\n";
+											string strOut = ss.str();
+											send(outSock, strOut.c_str(), strOut.size() + 1, 0);
+
+											ostringstream sendF;
+											sendF << "FILE|" << fileName << "|" << dt;
+											strOut = sendF.str();
+											send(outSock, strOut.c_str(), strOut.size() + 1, 0);
+										}
+										if (outSock == sock)
+										{
+											ss << "Private - [You]: " << fileName << "\r\n";
+											string strOut = ss.str();
+											send(outSock, strOut.c_str(), strOut.size() + 1, 0);
+										}
+									}
+
+								}
+							}
+							else {
+								for (u_int j = 0; j < master.fd_count; j++)
+								{
+									SOCKET outSock = master.fd_array[j];
+									if (outSock == sock || userToSock[receiver] == outSock)
+									{
+										if (outSock == listening)
+										{
+											continue;
+										}
+										ostringstream ss;
+										if (userToSock[receiver] == outSock)
+										{
+											ss << "Private - $[" << sockToUser[sock] << "]: " << ct << "\r\n";
+										}
+										if (outSock == sock)
+										{
+											ss << "Private - [You]: " << ct << "\r\n";
+										}
+										string strOut = ss.str();
+										send(outSock, strOut.c_str(), strOut.size() + 1, 0);
+									}
+
+								}
 							}
 						}
 					}
@@ -395,6 +445,10 @@ int main()
 							string strOut = "SU_FAILURE";
 							send(sock, strOut.c_str(), strOut.size() + 1, 0);
 						}
+					}
+					else if (flag == "CLOSE_CONNECTION") {
+						FD_CLR(sock, &master);
+						closesocket(sock);
 					}
 				}
 			}
