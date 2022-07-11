@@ -21,6 +21,8 @@ namespace ChatClient.Chat
             this.user = user.Trim();
             _client = new TcpClient();
             label2.Hide();
+            Text = "groupChat - " + user.Trim();
+            button5.Text = "User: " + user.Trim();
         }
         protected override void OnShown(EventArgs e)
         {
@@ -28,7 +30,7 @@ namespace ChatClient.Chat
 
             // Connect to the remote server. The IP address and port # could be
             // picked up from a settings file.
-            _client.Connect("127.0.0.1", 54000);
+            _client.Connect(Program.ConfigHost, Program.ConfigPort);
 
             // Start reading the socket and receive any incoming messages
             _client.GetStream().BeginRead(_buffer,
@@ -133,6 +135,16 @@ namespace ChatClient.Chat
             // Clear the text box and set it's focus
             textBox1.Text = "";
             textBox1.Focus();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

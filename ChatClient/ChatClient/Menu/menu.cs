@@ -19,6 +19,8 @@ namespace ChatClient.Menu
         {
             InitializeComponent();
             this.user = user.Trim();
+            Text = "Menu - " + user.Trim();
+            button5.Text = "User: " + user.Trim();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -56,6 +58,11 @@ namespace ChatClient.Menu
             login c = new login();
             c.ShowDialog();
             this.Close();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

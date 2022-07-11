@@ -29,7 +29,7 @@ namespace ChatClient.Login
 
             // Connect to the remote server. The IP address and port # could be
             // picked up from a settings file.
-            _client.Connect("127.0.0.1", 54000);
+            _client.Connect(Program.ConfigHost, Program.ConfigPort);
 
             // Start reading the socket and receive any incoming messages
             _client.GetStream().BeginRead(_buffer,
@@ -111,7 +111,7 @@ namespace ChatClient.Login
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
             if (textBox1.Text == "")
             {
@@ -169,6 +169,11 @@ namespace ChatClient.Login
 
             var msg = Encoding.ASCII.GetBytes(content);
             _client.GetStream().Write(msg, 0, msg.Length);
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
