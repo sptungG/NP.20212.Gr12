@@ -42,23 +42,27 @@
             // listBox1
             // 
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(12, 57);
+            this.listBox1.ItemHeight = 25;
+            this.listBox1.Location = new System.Drawing.Point(24, 110);
+            this.listBox1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(795, 394);
+            this.listBox1.Size = new System.Drawing.Size(1586, 754);
             this.listBox1.TabIndex = 0;
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(12, 468);
+            this.textBox1.Location = new System.Drawing.Point(24, 900);
+            this.textBox1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(634, 20);
+            this.textBox1.Size = new System.Drawing.Size(1264, 31);
             this.textBox1.TabIndex = 1;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(652, 466);
+            this.button1.Location = new System.Drawing.Point(1304, 896);
+            this.button1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.Size = new System.Drawing.Size(150, 44);
             this.button1.TabIndex = 2;
             this.button1.Text = "Send";
             this.button1.UseVisualStyleBackColor = true;
@@ -67,18 +71,20 @@
             // textBox2
             // 
             this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox2.Location = new System.Drawing.Point(318, 15);
+            this.textBox2.Location = new System.Drawing.Point(636, 29);
+            this.textBox2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(129, 23);
+            this.textBox2.Size = new System.Drawing.Size(254, 38);
             this.textBox2.TabIndex = 8;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(231, 18);
+            this.label1.Location = new System.Drawing.Point(462, 35);
+            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(81, 17);
+            this.label1.Size = new System.Drawing.Size(154, 31);
             this.label1.TabIndex = 7;
             this.label1.Text = "User name:";
             // 
@@ -87,9 +93,10 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.Red;
-            this.label2.Location = new System.Drawing.Point(469, 18);
+            this.label2.Location = new System.Drawing.Point(938, 35);
+            this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(209, 17);
+            this.label2.Size = new System.Drawing.Size(397, 31);
             this.label2.TabIndex = 9;
             this.label2.Text = "Please enter user name to chat!";
             // 
@@ -98,17 +105,19 @@
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.ForeColor = System.Drawing.Color.Red;
-            this.label3.Location = new System.Drawing.Point(469, 18);
+            this.label3.Location = new System.Drawing.Point(938, 35);
+            this.label3.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(258, 17);
+            this.label3.Size = new System.Drawing.Size(490, 31);
             this.label3.TabIndex = 10;
             this.label3.Text = "This user is not online or does not exist!";
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(13, 13);
+            this.button2.Location = new System.Drawing.Point(26, 25);
+            this.button2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.Size = new System.Drawing.Size(150, 44);
             this.button2.TabIndex = 11;
             this.button2.Text = "Back";
             this.button2.UseVisualStyleBackColor = true;
@@ -116,9 +125,10 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(733, 466);
+            this.button3.Location = new System.Drawing.Point(1466, 896);
+            this.button3.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 23);
+            this.button3.Size = new System.Drawing.Size(150, 44);
             this.button3.TabIndex = 12;
             this.button3.Text = "Attach";
             this.button3.UseVisualStyleBackColor = true;
@@ -127,9 +137,9 @@
             // privateChat
             // 
             this.AcceptButton = this.button1;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(838, 514);
+            this.ClientSize = new System.Drawing.Size(1676, 988);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label3);
@@ -139,8 +149,10 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.listBox1);
+            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.Name = "privateChat";
             this.Text = "Private Chat";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.privateChat_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 

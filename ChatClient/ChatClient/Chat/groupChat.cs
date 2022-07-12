@@ -10,17 +10,17 @@ namespace ChatClient.Chat
     {
         string user;
         TcpClient _client;
-
+        bool done;
         byte[] _buffer = new byte[4096];
 
         string preveousGroupName;
-        string welcomeStr="";
-        public groupChat(string user)
+        public groupChat(string user, TcpClient client)
         {
             InitializeComponent();
             this.user = user.Trim();
-            _client = new TcpClient();
+            _client = client;
             label2.Hide();
+            done = false;
         }
         protected override void OnShown(EventArgs e)
         {
@@ -28,7 +28,7 @@ namespace ChatClient.Chat
 
             // Connect to the remote server. The IP address and port # could be
             // picked up from a settings file.
-            _client.Connect("127.0.0.1", 54000);
+            //_client.Connect("127.0.0.1", 54000);
 
             // Start reading the socket and receive any incoming messages
             _client.GetStream().BeginRead(_buffer,
@@ -36,69 +36,71 @@ namespace ChatClient.Chat
                                             _buffer.Length,
                                             Server_MessageReceived,
                                             null);
-
-            var msg = Encoding.ASCII.GetBytes("INIT|NULL|" + user);
+            var msg = Encoding.ASCII.GetBytes("SKIP|NULL|");
             _client.GetStream().Write(msg, 0, msg.Length);
         }
 
         private void Server_MessageReceived(IAsyncResult ar)
         {
-            if (ar.IsCompleted)
+            if (!done)
             {
-                // End the stream read
-                var bytesIn = _client.GetStream().EndRead(ar);
-                if (bytesIn > 0)
+                if (ar.IsCompleted)
                 {
-                    // Create a string from the received data. For this server 
-                    // our data is in the form of a simple string, but it could be
-                    // binary data or a JSON object. Payload is your choice.
-                    var tmp = new byte[bytesIn];
-                    Array.Copy(_buffer, 0, tmp, 0, bytesIn);
-                    var str = Encoding.ASCII.GetString(tmp);
-                    if (welcomeStr == "")
+                    // End the stream read
+                    var bytesIn = _client.GetStream().EndRead(ar);
+                    if (bytesIn > 0)
                     {
-                        welcomeStr = str;
-                    }
-                    
-                    // Any actions that involve interacting with the UI must be done
-                    // on the main thread. This method is being called on a worker
-                    // thread so using the form's BeginInvoke() method is vital to
-                    // ensure that the action is performed on the main thread.
-                    BeginInvoke((Action)(() =>
-                    {
-                        if (str.IndexOf("|") != -1)
+                        // Create a string from the received data. For this server 
+                        // our data is in the form of a simple string, but it could be
+                        // binary data or a JSON object. Payload is your choice.
+                        var tmp = new byte[bytesIn];
+                        Array.Copy(_buffer, 0, tmp, 0, bytesIn);
+                        var str = Encoding.ASCII.GetString(tmp);
+
+                        // Any actions that involve interacting with the UI must be done
+                        // on the main thread. This method is being called on a worker
+                        // thread so using the form's BeginInvoke() method is vital to
+                        // ensure that the action is performed on the main thread.
+                        BeginInvoke((Action)(() =>
                         {
-                            if (str.Substring(0, str.IndexOf("|")) == "GC_ADD_USER" || str.Substring(0, str.IndexOf("|")) == "GC_LEFT_USER")
+                            if (str != "Skip menu page" && str != "Skip login page")
                             {
-                                listBox1.Items.Add("\t\t\t\t\t\t"+str.Substring(str.IndexOf("|")+1));
-                                listBox1.Items.Add("");
+                                if (str.IndexOf("|") != -1)
+                                {
+                                    if (str.Substring(0, str.IndexOf("|")) == "GC_ADD_USER" || str.Substring(0, str.IndexOf("|")) == "GC_LEFT_USER")
+                                    {
+                                        listBox1.Items.Add("\t\t\t\t\t\t" + str.Substring(str.IndexOf("|") + 1));
+                                        listBox1.Items.Add("");
+                                    }
+                                }
+                                else
+                                {
+                                    listBox1.Items.Add(str);
+                                    listBox1.Items.Add("");
+                                }
+
+                            //listBox1.SelectedIndex = listBox1.Items.Count - 1;
                             }
-                        }
-                        else
-                        {
-                            listBox1.Items.Add(str);
-                            listBox1.Items.Add("");
-                        }
+                        }));
+                    }
 
-                        //listBox1.SelectedIndex = listBox1.Items.Count - 1;
-                    }));
+                    // Clear the buffer and start listening again
+                    Array.Clear(_buffer, 0, _buffer.Length);
+                    _client.GetStream().BeginRead(_buffer,
+                                                    0,
+                                                    _buffer.Length,
+                                                    Server_MessageReceived,
+                                                    null);
                 }
-
-                // Clear the buffer and start listening again
-                Array.Clear(_buffer, 0, _buffer.Length);
-                _client.GetStream().BeginRead(_buffer,
-                                                0,
-                                                _buffer.Length,
-                                                Server_MessageReceived,
-                                                null);
             }
         }
 
 
         private void button2_Click(object sender, EventArgs e)
         {
+            done = true;
             this.Hide();
-            menu chatAll = new menu(user);
+            menu chatAll = new menu(user, _client);
             chatAll.ShowDialog();
             this.Close();
         }
@@ -120,7 +122,6 @@ namespace ChatClient.Chat
                 _client.GetStream().Write(Encoding.ASCII.GetBytes("LEFT_GROUP_CHAT|NULL|" + preveousGroupName), 0, Encoding.ASCII.GetBytes("LEFT_GROUP_CHAT|NULL|" + preveousGroupName).Length);
                 preveousGroupName = textBox2.Text;
                 listBox1.Items.Clear();
-                listBox1.Items.Add(welcomeStr);
             }
 
             preveousGroupName = textBox2.Text;
@@ -133,6 +134,12 @@ namespace ChatClient.Chat
             // Clear the text box and set it's focus
             textBox1.Text = "";
             textBox1.Focus();
+        }
+
+        private void groupChat_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");
+            _client.GetStream().Write(msg, 0, msg.Length);
         }
     }
 }

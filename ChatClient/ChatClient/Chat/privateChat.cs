@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using ChatClient.Menu;
@@ -18,14 +12,16 @@ namespace ChatClient.Chat
     {
         TcpClient _client;
         bool sendFile;
+        bool done;
         string user;
         byte[] _buffer = new byte[4096];
-        public privateChat(string user)
+        public privateChat(string user, TcpClient client)
         {
             InitializeComponent();
             this.user = user.Trim();
-            _client = new TcpClient();
+            _client = client;
             sendFile = false;
+            done = false; 
             label2.Hide();
             label3.Hide();
         }
@@ -36,7 +32,7 @@ namespace ChatClient.Chat
 
             // Connect to the remote server. The IP address and port # could be
             // picked up from a settings file.
-            _client.Connect("127.0.0.1", 54000);
+            //_client.Connect("127.0.0.1", 54000);
 
             // Start reading the socket and receive any incoming messages
             _client.GetStream().BeginRead(_buffer,
@@ -44,78 +40,80 @@ namespace ChatClient.Chat
                                             _buffer.Length,
                                             Server_MessageReceived,
                                             null);
-
-            var msg = Encoding.ASCII.GetBytes("INIT|NULL|" + user);
+            var msg = Encoding.ASCII.GetBytes("SKIP|NULL|");
             _client.GetStream().Write(msg, 0, msg.Length);
         }
 
         private void Server_MessageReceived(IAsyncResult ar)
         {
-            if (ar.IsCompleted)
+            if (!done)
             {
-                // End the stream read
-                var bytesIn = _client.GetStream().EndRead(ar);
-                if (bytesIn > 0)
+                if (ar.IsCompleted)
                 {
-                    // Create a string from the received data. For this server 
-                    // our data is in the form of a simple string, but it could be
-                    // binary data or a JSON object. Payload is your choice.
-                    var tmp = new byte[bytesIn];
-                    Array.Copy(_buffer, 0, tmp, 0, bytesIn);
-                    var str = Encoding.ASCII.GetString(tmp);
-
-                    // Any actions that involve interacting with the UI must be done
-                    // on the main thread. This method is being called on a worker
-                    // thread so using the form's BeginInvoke() method is vital to
-                    // ensure that the action is performed on the main thread.
-                    BeginInvoke((Action)(() =>
+                    // End the stream read
+                    var bytesIn = _client.GetStream().EndRead(ar);
+                    if (bytesIn > 0)
                     {
-                        if (str.IndexOf("|") != -1)
-                        {
-                            string[] words = str.Split('|');
-                            string fileName = words[1];
+                        // Create a string from the received data. For this server 
+                        // our data is in the form of a simple string, but it could be
+                        // binary data or a JSON object. Payload is your choice.
+                        var tmp = new byte[bytesIn];
+                        Array.Copy(_buffer, 0, tmp, 0, bytesIn);
+                        var str = Encoding.ASCII.GetString(tmp);
 
-                            DialogResult res = MessageBox.Show("Do you want to receive " + fileName + "?", "Confirmation", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                            if (res == DialogResult.OK)
+                        // Any actions that involve interacting with the UI must be done
+                        // on the main thread. This method is being called on a worker
+                        // thread so using the form's BeginInvoke() method is vital to
+                        // ensure that the action is performed on the main thread.
+                        BeginInvoke((Action)(() =>
+                        {
+                            if (str != "Skip menu page" && str != "Skip login page")
                             {
-                                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-                                saveFileDialog1.DefaultExt = "txt";
-                                saveFileDialog1.Filter = "RichTextFile |*.rtf|Text file (*.txt)|*.txt|XML file (*.xml)|*.xml|All files (*.*)|*.*";
-                                saveFileDialog1.AddExtension = true;
-                                saveFileDialog1.RestoreDirectory = true;
-                                saveFileDialog1.Title = "Where do you want to save the file?";
-                                saveFileDialog1.InitialDirectory = @"C:/";
-                                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                                if (str.IndexOf("|") != -1)
                                 {
-                                    File.WriteAllText(saveFileDialog1.FileName, words[2]);
+                                    string[] words = str.Split('|');
+                                    string fileName = words[1];
+
+                                    DialogResult res = MessageBox.Show("Do you want to receive " + fileName + "?", "Confirmation", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                                    if (res == DialogResult.OK)
+                                    {
+                                        SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+                                        saveFileDialog1.DefaultExt = "txt";
+                                        saveFileDialog1.Filter = "Text file (*.txt)|*.txt";
+                                        saveFileDialog1.AddExtension = true;
+                                        saveFileDialog1.RestoreDirectory = true;
+                                        saveFileDialog1.Title = "Where do you want to save the file?";
+                                        saveFileDialog1.InitialDirectory = @"C:/";
+                                        if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                                        {
+                                            File.WriteAllText(saveFileDialog1.FileName, words[2]);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if (str == "C_PC_FAILURE\0")
+                                    {
+                                        label3.Show();
+                                    }
+                                    else
+                                    {
+                                        listBox1.Items.Add(str);
+                                        listBox1.Items.Add("");
+                                    }
                                 }
                             }
-                        }
-                        else
-                        {
-                            if (str == "C_PC_FAILURE\0")
-                            {
-                                label3.Show();
-                            }
-                            else
-                            {
-                                listBox1.Items.Add(str);
-                                listBox1.Items.Add("");
-                            }
-                        }
-                        
-                        
-                        //listBox1.SelectedIndex = listBox1.Items.Count - 1;
-                    }));
-                }
+                        }));
+                    }
 
-                // Clear the buffer and start listening again
-                Array.Clear(_buffer, 0, _buffer.Length);
-                _client.GetStream().BeginRead(_buffer,
-                                                0,
-                                                _buffer.Length,
-                                                Server_MessageReceived,
-                                                null);
+                    // Clear the buffer and start listening again
+                    Array.Clear(_buffer, 0, _buffer.Length);
+                    _client.GetStream().BeginRead(_buffer,
+                                                    0,
+                                                    _buffer.Length,
+                                                    Server_MessageReceived,
+                                                    null);
+                }
             }
         }
 
@@ -165,11 +163,11 @@ namespace ChatClient.Chat
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");
-            _client.GetStream().Write(msg, 0, msg.Length);
-
+            //var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");
+            //_client.GetStream().Write(msg, 0, msg.Length);
+            done = true;
             this.Hide();
-            menu chatAll = new menu(user);
+            menu chatAll = new menu(user, _client);
             chatAll.ShowDialog();
             this.Close();
         }
@@ -182,6 +180,12 @@ namespace ChatClient.Chat
                 sendFile = true;
                 textBox1.Text = dlg.FileName;
             }
+        }
+
+        private void privateChat_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");
+            _client.GetStream().Write(msg, 0, msg.Length);
         }
     }
 }
