@@ -181,8 +181,6 @@ int main()
 					if (flag == "SKIP") {
 						string strOut = "Skip login page";
 						send(sock, strOut.c_str(), strOut.size() + 1, 0);
-						strOut = "Skip menu page";
-						send(sock, strOut.c_str(), strOut.size() + 1, 0);
 					}
 					else if (flag == "INIT") {
 						sockToUser[sock] = content;

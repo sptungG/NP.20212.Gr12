@@ -4,3 +4,4 @@ hoanga	a
 hoangaa	q
 a	a
 ab	ab
+b	b

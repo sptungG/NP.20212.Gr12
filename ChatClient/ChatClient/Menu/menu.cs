@@ -39,11 +39,11 @@ namespace ChatClient.Menu
             // Start reading the socket and receive any incoming messages
             if (!pass)
             {
-                _client.GetStream().BeginRead(_buffer,
-                                            0,
-                                            _buffer.Length,
-                                            null,
-                                            null);
+                //_client.GetStream().BeginRead(_buffer,
+                //                            0,
+                //                            _buffer.Length,
+                //                            null,
+                //                            null);
             
                 var msg = Encoding.ASCII.GetBytes("INIT|NULL|" + user);
                 _client.GetStream().Write(msg, 0, msg.Length);

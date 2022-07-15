@@ -69,7 +69,7 @@ namespace ChatClient
                         // ensure that the action is performed on the main thread.
                         listBox1.Invoke((Action)(() =>
                         {
-                            if (str != "Skip menu page" && str != "Skip login page")
+                            if (str != "Skip login page\0")
                             {
                                 listBox1.Items.Add(str);
                                 listBox1.Items.Add("");
