@@ -73,7 +73,6 @@ namespace ChatClient
                             {
                                 listBox1.Items.Add(str);
                                 listBox1.Items.Add("");
-                                listBox1.SelectedIndex = listBox1.Items.Count == 0 ? 0 : listBox1.Items.Count - 2;
                             }
                         }));
                     }
