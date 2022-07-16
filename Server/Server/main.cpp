@@ -313,7 +313,6 @@ int main()
 										string strOut = ss.str();
 										send(outSock, strOut.c_str(), strOut.size() + 1, 0);
 									}
-
 								}
 							}
 						}

@@ -63,7 +63,7 @@ namespace ChatClient.Chat
                         // ensure that the action is performed on the main thread.
                         BeginInvoke((Action)(() =>
                         {
-                            if (str != "Skip login page")
+                            if (str != "Skip login page\0")
                             {
                                 if (str.IndexOf("|") != -1)
                                 {
