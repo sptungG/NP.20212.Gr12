@@ -3,3 +3,4 @@ hoang	a
 hoanga	a
 hoangaa	q
 a	a
+ab	ab

@@ -11,19 +11,21 @@ namespace ChatClient
 
         // The .net wrapper around WinSock sockets.
         TcpClient _client;
+        bool done;
         string user;
         /// <summary>
         /// Buffer to store incoming messages from the server.
         /// </summary>
         byte[] _buffer = new byte[4096];
 
-        public chatAll(string user)
+        public chatAll(string user, TcpClient client)
         {
             InitializeComponent();
             this.user = user.Trim();
-            _client = new TcpClient();
+            _client = client;
             Text = "ChatAll - " + user.Trim();
             button5.Text = "User: " + user.Trim();
+            done = false;
         }
 
         protected override void OnShown(EventArgs e)
@@ -32,53 +34,60 @@ namespace ChatClient
 
             // Connect to the remote server. The IP address and port # could be
             // picked up from a settings file.
-            _client.Connect(Program.ConfigHost, Program.ConfigPort);
+
+            //_client.Connect("127.0.0.1", 54000);
 
             // Start reading the socket and receive any incoming messages
+
             _client.GetStream().BeginRead(_buffer,
                                             0,
                                             _buffer.Length,
                                             Server_MessageReceived,
                                             null);
-
-            var msg = Encoding.ASCII.GetBytes("INIT|NULL|" + user);
+            var msg = Encoding.ASCII.GetBytes("SKIP|NULL|");
             _client.GetStream().Write(msg, 0, msg.Length);
         }
 
         private void Server_MessageReceived(IAsyncResult ar)
         {
-            if (ar.IsCompleted)
+            if (!done)
             {
-                // End the stream read
-                var bytesIn = _client.GetStream().EndRead(ar);
-                if (bytesIn > 0)
+                if (ar.IsCompleted)
                 {
-                    // Create a string from the received data. For this server 
-                    // our data is in the form of a simple string, but it could be
-                    // binary data or a JSON object. Payload is your choice.
-                    var tmp = new byte[bytesIn];
-                    Array.Copy(_buffer, 0, tmp, 0, bytesIn);
-                    var str = Encoding.ASCII.GetString(tmp);
-
-                    // Any actions that involve interacting with the UI must be done
-                    // on the main thread. This method is being called on a worker
-                    // thread so using the form's BeginInvoke() method is vital to
-                    // ensure that the action is performed on the main thread.
-                    BeginInvoke((Action)(() =>
+                    // End the stream read
+                    var bytesIn = _client.GetStream().EndRead(ar);
+                    if (bytesIn > 0)
                     {
-                        listBox1.Items.Add(str);
-                        listBox1.Items.Add("");
-                        //listBox1.SelectedIndex = listBox1.Items.Count - 1;
-                    }));
-                }
+                        // Create a string from the received data. For this server 
+                        // our data is in the form of a simple string, but it could be
+                        // binary data or a JSON object. Payload is your choice.
+                        var tmp = new byte[bytesIn];
+                        Array.Copy(_buffer, 0, tmp, 0, bytesIn);
+                        var str = Encoding.ASCII.GetString(tmp);
 
-                // Clear the buffer and start listening again
-                Array.Clear(_buffer, 0, _buffer.Length);
-                _client.GetStream().BeginRead(_buffer,
-                                                0,
-                                                _buffer.Length,
-                                                Server_MessageReceived,
-                                                null);
+                        // Any actions that involve interacting with the UI must be done
+                        // on the main thread. This method is being called on a worker
+                        // thread so using the form's BeginInvoke() method is vital to
+                        // ensure that the action is performed on the main thread.
+                        listBox1.Invoke((Action)(() =>
+                        {
+                            if (str != "Skip menu page" && str != "Skip login page")
+                            {
+                                listBox1.Items.Add(str);
+                                listBox1.Items.Add("");
+                                listBox1.SelectedIndex = listBox1.Items.Count == 0 ? 0 : listBox1.Items.Count - 2;
+                            }
+                        }));
+                    }
+
+                    // Clear the buffer and start listening again
+                    Array.Clear(_buffer, 0, _buffer.Length);
+                    _client.GetStream().BeginRead(_buffer,
+                                                    0,
+                                                    _buffer.Length,
+                                                    Server_MessageReceived,
+                                                    null);
+                }
             }
         }
 
@@ -102,10 +111,12 @@ namespace ChatClient
 
         }
 
+
         private void button2_Click(object sender, EventArgs e)
         {
+            done = true;
             this.Hide();
-            menu chatAll = new menu(user);
+            menu chatAll = new menu(user, _client);
             chatAll.ShowDialog();
             this.Close();
         }
@@ -118,6 +129,12 @@ namespace ChatClient
         private void button5_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void chatAll_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");
+            _client.GetStream().Write(msg, 0, msg.Length);
         }
     }
 }

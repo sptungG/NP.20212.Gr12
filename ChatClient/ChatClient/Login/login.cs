@@ -9,18 +9,21 @@ namespace ChatClient.Login
     public partial class login : Form
     {
         TcpClient _client;
-
+        
+        bool pass;
         byte[] _buffer = new byte[4096];
         public login()
         {
             InitializeComponent();
             _client = new TcpClient();
+            pass = false;
             label3.Hide();
             label4.Hide();
             label5.Hide();
             label6.Hide();
             label7.Hide();
             textBox2.PasswordChar = '*' ;
+            this.AcceptButton = button3;
         }
 
         protected override void OnShown(EventArgs e)
@@ -62,11 +65,12 @@ namespace ChatClient.Login
                     {
                         if (str == "LI_SUCCESS\0")
                         {
+                            pass = true;
                             this.Hide();
-                            menu chatAll = new menu(textBox1.Text);
+                            menu chatAll = new menu(textBox1.Text, _client);
                             chatAll.ShowDialog();
                             this.Close();
-                        } 
+                        }
                         else if (str == "LI_FAILURE\0")
                         {
                             label4.Hide();
@@ -91,14 +95,18 @@ namespace ChatClient.Login
                     }));
                 }
 
-                // Clear the buffer and start listening again
-                Array.Clear(_buffer, 0, _buffer.Length);
-                _client.GetStream().BeginRead(_buffer,
-                                                0,
-                                                _buffer.Length,
-                                                Server_MessageReceived,
-                                                null);
+                if (!pass)
+                {
+                    // Clear the buffer and start listening again
+                    Array.Clear(_buffer, 0, _buffer.Length);
+                    _client.GetStream().BeginRead(_buffer,
+                                                    0,
+                                                    _buffer.Length,
+                                                    Server_MessageReceived,
+                                                    null);
+                }
             }
+            
         }
 
         private void Form1_Load(object sender, EventArgs e)
