@@ -24,6 +24,8 @@ namespace ChatClient
             this.user = user.Trim();
             _client = client;
             done = false;
+            Text = "ChatAll - " + user.Trim();
+            username.Text = "User: " + user.Trim();
         }
 
         protected override void OnShown(EventArgs e)
@@ -33,10 +35,10 @@ namespace ChatClient
             // Connect to the remote server. The IP address and port # could be
             // picked up from a settings file.
 
-            //_client.Connect("127.0.0.1", 54000);
+            //_client.Connect(Program.ConfigHost, Program.ConfigPort);
 
             // Start reading the socket and receive any incoming messages
-            
+
             _client.GetStream().BeginRead(_buffer,
                                             0,
                                             _buffer.Length,

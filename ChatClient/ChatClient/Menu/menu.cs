@@ -25,6 +25,8 @@ namespace ChatClient.Menu
             this.user = user.Trim();
             _client = client;
             pass = false;
+            Text = "Welcome - " + user.Trim();
+            username.Text = "User: " + user.Trim();
         }
 
         protected override void OnShown(EventArgs e)
@@ -34,7 +36,7 @@ namespace ChatClient.Menu
             // Connect to the remote server. The IP address and port # could be
             // picked up from a settings file.
 
-            //_client.Connect("127.0.0.1", 54000);
+            //_client.Connect(Program.ConfigHost, Program.ConfigPort);
 
             // Start reading the socket and receive any incoming messages
             if (!pass)
