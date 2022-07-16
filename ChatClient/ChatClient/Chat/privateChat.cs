@@ -42,6 +42,8 @@ namespace ChatClient.Chat
                                             null);
             var msg = Encoding.ASCII.GetBytes("SKIP|NULL|");
             _client.GetStream().Write(msg, 0, msg.Length);
+            msg = Encoding.ASCII.GetBytes("USER_ONLINE|NULL|");
+            _client.GetStream().Write(msg, 0, msg.Length);
         }
 
         private void Server_MessageReceived(IAsyncResult ar)
@@ -74,19 +76,29 @@ namespace ChatClient.Chat
                                     string[] words = str.Split('|');
                                     string fileName = words[1];
 
-                                    DialogResult res = MessageBox.Show("Do you want to receive " + fileName + "?", "Confirmation", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
-                                    if (res == DialogResult.OK)
+                                    if (words[0] == "USER_ONLINE")
                                     {
-                                        SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-                                        saveFileDialog1.DefaultExt = "txt";
-                                        saveFileDialog1.Filter = "Text file (*.txt)|*.txt";
-                                        saveFileDialog1.AddExtension = true;
-                                        saveFileDialog1.RestoreDirectory = true;
-                                        saveFileDialog1.Title = "Where do you want to save the file?";
-                                        saveFileDialog1.InitialDirectory = @"C:/";
-                                        if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                                        comboBox1.Items.Clear();
+                                        for (int i = 1; i < words.Length-1; i++)
                                         {
-                                            File.WriteAllText(saveFileDialog1.FileName, words[2]);
+                                            comboBox1.Items.Add(words[i]);
+                                        }
+                                    } else
+                                    {
+                                        DialogResult res = MessageBox.Show("Do you want to receive " + fileName + "?", "Confirmation", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                                        if (res == DialogResult.OK)
+                                        {
+                                            SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+                                            saveFileDialog1.DefaultExt = "txt";
+                                            saveFileDialog1.Filter = "Text file (*.txt)|*.txt";
+                                            saveFileDialog1.AddExtension = true;
+                                            saveFileDialog1.RestoreDirectory = true;
+                                            saveFileDialog1.Title = "Where do you want to save the file?";
+                                            saveFileDialog1.InitialDirectory = @"C:/";
+                                            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                                            {
+                                                File.WriteAllText(saveFileDialog1.FileName, words[2]);
+                                            }
                                         }
                                     }
                                 }
@@ -131,10 +143,9 @@ namespace ChatClient.Chat
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (textBox2.Text == "")
+            if  (comboBox1.SelectedItem == null)
             {
                 label2.Show();
-                textBox2.Focus();
                 return;
             }
             label2.Hide();
@@ -143,12 +154,12 @@ namespace ChatClient.Chat
             // Encode the message and send it out to the server.
             if (!sendFile)
             {
-                var content = "PRIVATE_CHAT|NULL|" + textBox2.Text + "|NULL|" + textBox1.Text;
+                var content = "PRIVATE_CHAT|NULL|" + comboBox1.SelectedItem.ToString() + "|NULL|" + textBox1.Text;
                 var msg = Encoding.ASCII.GetBytes(content);
                 _client.GetStream().Write(msg, 0, msg.Length);
             } else
             {
-                var content = "PRIVATE_CHAT|NULL|" + textBox2.Text + "|NULL|SEND_FILE|NULL|" + toNameOfFile(textBox1.Text);
+                var content = "PRIVATE_CHAT|NULL|" + comboBox1.SelectedItem.ToString() + "|NULL|SEND_FILE|NULL|" + toNameOfFile(textBox1.Text);
                 var msg = Encoding.ASCII.GetBytes(content);
                 _client.GetStream().Write(msg, 0, msg.Length);
                 handleSendFile();
@@ -185,6 +196,12 @@ namespace ChatClient.Chat
         private void privateChat_FormClosed(object sender, FormClosedEventArgs e)
         {
             var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");
+            _client.GetStream().Write(msg, 0, msg.Length);
+        }
+
+        private void comboBox1_Enter(object sender, EventArgs e)
+        {
+            var msg = Encoding.ASCII.GetBytes("USER_ONLINE|NULL|");
             _client.GetStream().Write(msg, 0, msg.Length);
         }
     }

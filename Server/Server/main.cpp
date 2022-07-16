@@ -178,7 +178,21 @@ int main()
 					string flag = str.substr(0, str.find("|NULL|"));
 					string content = str.substr(str.find("|NULL|") + 6);
 
-					if (flag == "SKIP") {
+					if (flag == "USER_ONLINE") {
+						ostringstream ss;
+						ss << "USER_ONLINE|";
+						for (u_int j = 1; j < master.fd_count; j++)
+						{
+							SOCKET outSock = master.fd_array[j];
+							if (outSock!=sock)
+							{
+								ss << sockToUser[outSock] << "|";
+							}
+						}
+						string strOut = ss.str();
+						send(sock, strOut.c_str(), strOut.size() + 1, 0);
+					}
+					else if (flag == "SKIP") {
 						string strOut = "Skip login page";
 						send(sock, strOut.c_str(), strOut.size() + 1, 0);
 					}
