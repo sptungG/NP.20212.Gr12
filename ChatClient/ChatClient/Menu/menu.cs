@@ -46,7 +46,7 @@ namespace ChatClient.Menu
             }
             
         }
-
+        // chatAll
         private void button1_Click(object sender, EventArgs e)
         {
             pass = true;
@@ -60,7 +60,7 @@ namespace ChatClient.Menu
         {
             pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
         }
-
+        // privateChat
         private void button2_Click(object sender, EventArgs e)
         {
             pass = true;
@@ -69,7 +69,7 @@ namespace ChatClient.Menu
             c.ShowDialog();
             this.Close();
         }
-
+        // Gr chat
         private void button3_Click(object sender, EventArgs e)
         {
             pass = true;
@@ -78,7 +78,7 @@ namespace ChatClient.Menu
             c.ShowDialog();
             this.Close();
         }
-
+        // Logout
         private void button4_Click(object sender, EventArgs e)
         {
             var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");
@@ -89,7 +89,7 @@ namespace ChatClient.Menu
             c.ShowDialog();
             this.Close();
         }
-
+        // Close Window
         private void menu_FormClosed(object sender, FormClosedEventArgs e)
         {
             var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");

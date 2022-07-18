@@ -97,7 +97,7 @@ namespace ChatClient.Chat
             }
         }
 
-
+        // Back Button
         private void button2_Click(object sender, EventArgs e)
         {
             done = true;
@@ -106,7 +106,7 @@ namespace ChatClient.Chat
             chatAll.ShowDialog();
             this.Close();
         }
-
+        // Send Chat message
         private void button1_Click(object sender, EventArgs e)
         {
             if (textBox2.Text == "")
@@ -137,7 +137,7 @@ namespace ChatClient.Chat
             textBox1.Text = "";
             textBox1.Focus();
         }
-
+        // Close GrChat Window
         private void groupChat_FormClosed(object sender, FormClosedEventArgs e)
         {
             var msg = Encoding.ASCII.GetBytes("CLOSE_CONNECTION");

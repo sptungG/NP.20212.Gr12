@@ -6,7 +6,7 @@ namespace ChatClient
 {
     static class Program
     {
-        public static string ConfigHost { get; set; } = "127.0.0.1";
+        public static string ConfigHost { get; set; } = "172.16.143.97";
         public static int ConfigPort { get; set; } = 54000;
         /// <summary>
         /// The main entry point for the application.
