@@ -71,7 +71,7 @@ namespace ChatClient
                         // ensure that the action is performed on the main thread.
                         listBox1.Invoke((Action)(() =>
                         {
-                            if (str != "Skip login page\0")
+                            if (str != "Skip login page\0" && !str.Contains("Private") && !str.Contains("Group") && !str.Contains("FILE|"))
                             {
                                 listBox1.Items.Add(str);
                                 listBox1.Items.Add("");

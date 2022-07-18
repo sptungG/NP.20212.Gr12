@@ -105,7 +105,6 @@ int main()
 	// connections 
 	FD_SET(listening, &master);
 
-	// this will be changed by the \quit command (see below, bonus not in video!)
 	bool running = true;
 
 	int countGroup = 0;
@@ -258,6 +257,11 @@ int main()
 										dt[j] = '\0';
 										break;
 									}
+									if (dt[j] == '?')
+									{
+										dt[j] = '\0';
+										break;
+									}
 								}
 
 								for (u_int j = 0; j < master.fd_count; j++)
@@ -283,7 +287,7 @@ int main()
 										}
 										if (outSock == sock)
 										{
-											ss << "Private - [You]: " << fileName << "\r\n";
+											ss << "Private - [You] to $[" << receiver <<"]: " << fileName << "\r\n";
 											string strOut = ss.str();
 											send(outSock, strOut.c_str(), strOut.size() + 1, 0);
 										}
@@ -308,7 +312,7 @@ int main()
 										}
 										if (outSock == sock)
 										{
-											ss << "Private - [You]: " << ct << "\r\n";
+											ss << "Private - [You] to $[" << receiver << "]: " << ct << "\r\n";
 										}
 										string strOut = ss.str();
 										send(outSock, strOut.c_str(), strOut.size() + 1, 0);
