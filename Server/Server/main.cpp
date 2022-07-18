@@ -105,7 +105,6 @@ int main()
 	// connections 
 	FD_SET(listening, &master);
 
-	// this will be changed by the \quit command (see below, bonus not in video!)
 	bool running = true;
 
 	int countGroup = 0;
@@ -254,6 +253,11 @@ int main()
 								for (int j = 0; j < 4096-1; j++)
 								{
 									if (dt[j] == 'Ì')
+									{
+										dt[j] = '\0';
+										break;
+									}
+									if (dt[j] == '?')
 									{
 										dt[j] = '\0';
 										break;
