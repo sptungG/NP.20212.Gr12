@@ -77,8 +77,11 @@ namespace ChatClient.Chat
                                 }
                                 else
                                 {
-                                    listBox1.Items.Add(str);
-                                    listBox1.Items.Add("");
+                                    if (str.Contains("Group"))
+                                    {
+                                        listBox1.Items.Add(str);
+                                        listBox1.Items.Add("");
+                                    }
                                 }
 
                             //listBox1.SelectedIndex = listBox1.Items.Count - 1;
