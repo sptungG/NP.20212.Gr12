@@ -312,7 +312,7 @@ int main()
 										}
 										if (outSock == sock)
 										{
-											ss << "Private - [You]: " << ct << "\r\n";
+											ss << "Private - [You] to $[" << receiver << "]: " << ct << "\r\n";
 										}
 										string strOut = ss.str();
 										send(outSock, strOut.c_str(), strOut.size() + 1, 0);
