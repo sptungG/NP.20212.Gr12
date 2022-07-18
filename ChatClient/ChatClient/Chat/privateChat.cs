@@ -112,8 +112,12 @@ namespace ChatClient.Chat
                                     }
                                     else
                                     {
-                                        listBox1.Items.Add(str);
-                                        listBox1.Items.Add("");
+                                        if (str.Contains("Private"))
+                                        {
+                                            listBox1.Items.Add(str);
+                                            listBox1.Items.Add("");
+                                        }
+                                        
                                     }
                                 }
                             }
